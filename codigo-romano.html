@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Codificador Romano</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        header {
+            background: #2c3e50;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        h1 {
+            margin-bottom: 10px;
+        }
+        
+        .description {
+            margin-bottom: 20px;
+            color: #ecf0f1;
+        }
+        
+        .alphabet-display {
+            display: flex;
+            justify-content: center;
+            margin: 10px 0;
+            flex-wrap: wrap;
+        }
+        
+        .alphabet-item {
+            margin: 0 2px;
+            font-weight: bold;
+        }
+        
+        .arrow {
+            margin: 0 5px;
+            font-weight: bold;
+            color: #e74c3c;
+        }
+        
+        .main-content {
+            padding: 20px;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-family: inherit;
+            font-size: 16px;
+            resize: vertical;
+            transition: border-color 0.3s;
+        }
+        
+        textarea:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+        
+        .char-count {
+            text-align: right;
+            font-size: 14px;
+            color: #7f8c8d;
+            margin-top: 5px;
+        }
+        
+        .char-count.max {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-encode {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .btn-encode:hover {
+            background-color: #2980b9;
+        }
+        
+        .btn-decode {
+            background-color: #2ecc71;
+            color: white;
+        }
+        
+        .btn-decode:hover {
+            background-color: #27ae60;
+        }
+        
+        .btn-clear {
+            background-color: #e74c3c;
+            color: white;
+        }
+        
+        .btn-clear:hover {
+            background-color: #c0392b;
+        }
+        
+        .result-container {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            border-left: 4px solid #3498db;
+        }
+        
+        .result-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+        
+        .result-content {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #7f8c8d;
+            font-size: 14px;
+            border-top: 1px solid #ecf0f1;
+        }
+        
+        @media (max-width: 600px) {
+            .buttons {
+                flex-direction: column;
+            }
+            
+            .alphabet-item {
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="app" class="container">
+        <header>
+            <h1>Codificador Romano</h1>
+            <p class="description">Convierte texto usando el código de sustitución romano</p>
+            <div class="alphabet-display">
+                <span class="alphabet-item">a b c d e f g h i j k l m n o p q r s t u v w x y z</span>
+                <div class="arrow">↓</div>
+                <span class="alphabet-item">j k l m n o p q r s t u v w x y z a b c d e f g h i</span>
+            </div>
+        </header>
+        
+        <div class="main-content">
+            <div class="input-group">
+                <label for="inputText">Ingresa tu texto (máximo 1000 caracteres):</label>
+                <textarea 
+                    id="inputText" 
+                    v-model="inputText" 
+                    @input="updateCharCount"
+                    placeholder="Escribe o pega tu texto aquí..."
+                    maxlength="1000"></textarea>
+                <div class="char-count" :class="{ max: charCount >= 1000 }">
+                    {{ charCount }}/1000 caracteres
+                </div>
+            </div>
+            
+            <div class="buttons">
+                <button class="btn-encode" @click="encodeText">Codificar</button>
+                <button class="btn-decode" @click="decodeText">Decodificar</button>
+                <button class="btn-clear" @click="clearText">Limpiar</button>
+            </div>
+            
+            <div class="result-container" v-if="result">
+                <div class="result-title">Resultado:</div>
+                <div class="result-content">{{ result }}</div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>Codificador Romano © 2023 - Intercambio de letras según secuencia predefinida</p>
+        </footer>
+    </div>
+
+    <script>
+        new Vue({
+            el: '#app',
+            data: {
+                inputText: '',
+                result: '',
+                charCount: 0
+            },
+            methods: {
+                updateCharCount() {
+                    this.charCount = this.inputText.length;
+                },
+                
+                encodeText() {
+                    this.result = this.transformText(this.inputText, 'encode');
+                },
+                
+                decodeText() {
+                    this.result = this.transformText(this.inputText, 'decode');
+                },
+                
+                transformText(text, operation) {
+                    const original = 'abcdefghijklmnopqrstuvwxyz';
+                    const encoded = 'jklmnopqrstuvwxyzabcdefghi';
+                    
+                    let result = '';
+                    
+                    for (let char of text.toLowerCase()) {
+                        if (operation === 'encode') {
+                            // Codificar: buscar en original y reemplazar con encoded
+                            const index = original.indexOf(char);
+                            result += index !== -1 ? encoded[index] : char;
+                        } else {
+                            // Decodificar: buscar en encoded y reemplazar con original
+                            const index = encoded.indexOf(char);
+                            result += index !== -1 ? original[index] : char;
+                        }
+                    }
+                    
+                    return result;
+                },
+                
+                clearText() {
+                    this.inputText = '';
+                    this.result = '';
+                    this.charCount = 0;
+                }
+            },
+            mounted() {
+                this.updateCharCount();
+            }
+        });
+    </script>
+</body>
+</html>
